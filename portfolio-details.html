@@ -32,7 +32,214 @@
   * Author: BootstrapMade.com
   * License: https://bootstrapmade.com/license/
   ======================================================== -->
+  
+  <style>@import url("https://fonts.googleapis.com/css2?family=Blinker:wght@400;700&display=swap");
+
+:root {
+  --border-color: #e3e5e4;
+  --background-color: #fff;
+  --background-secondary-color: #c3c7ca;
+  --draggable-color: #eaeaea;
+  --text-color: #34444f;
+  --right-color: #3ae374;
+  --wrong-color: #ff3838;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Blinker", sans-serif;
+  background-color: var(--background-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100vh;
+  margin: 0;
+}
+
+.draggable-list {
+  border: 1px solid var(--border-color);
+  color: var(--text-color);
+  padding: 0;
+  list-style-type: none;
+}
+
+.draggable-list li {
+  background-color: var(--background-color);
+  display: flex;
+  flex: 1;
+}
+
+.draggable-list li:not(:last-of-type) {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.draggable-list .number {
+  background-color: var(--background-secondary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  width: 3.75rem;
+  height: 3.75rem;
+}
+
+.draggable-list li.over .draggable {
+  background-color: var(--draggable-color);
+}
+
+.draggable-list .person-name {
+  margin: 0 1.25rem 0 0;
+}
+
+.draggable-list li.right .person-name {
+  color: var(--right-color);
+}
+
+.draggable-list li.wrong .person-name {
+  color: var(--wrong-color);
+}
+
+.draggable {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  flex: 1;
+}
+
+.check-btn {
+  background-color: var(--background-secondary-color);
+  border: none;
+  color: var(--text-color);
+  font-size: 1rem;
+  padding: 0.625rem 1.25rem;
+  cursor: pointer;
+}
+
+.check-btn:active {
+  transform: scale(0.98);
+}
+
+.check-btn:hover {
+  background-color: var(--text-color);
+  color: var(--background-color);
+}
+
+.check-btn:focus {
+  outline: none;
+}
+</style>
+  <script>const draggableList = document.getElementById("draggable-list");
+const check = document.getElementById("check");
+
+const richestPeople = [
+  "Jeff Bezos",
+  "Bill Gates",
+  "Bernard Arnault",
+  "Warren Buffett",
+  "Larry Ellison",
+  "Amancio Ortega",
+  "Mark Zuckerberg",
+  "Jim Walton",
+  "Alice Walton",
+  "S. Robson Walton",
+];
+
+const listItems = [];
+
+let dragStartIndex;
+
+function createList() {
+  const newList = [...richestPeople];
+  newList
+    .map((person) => ({ value: person, sort: Math.random() })) // randomize list
+    .sort((a, b) => a.sort - b.sort) // generate new order
+    .map((person) => person.value) // retrieve original strings
+    .forEach((person, index) => {
+      const listItem = document.createElement("li");
+      listItem.setAttribute("data-index", index);
+      listItem.innerHTML = `
+        <span class="number">${index + 1}</span>
+        <div class="draggable" draggable="true">
+          <p class="person-name">${person}</p>
+          <i class="fas fa-grip-lines"></i>
+        </div>
+      `;
+      listItems.push(listItem);
+      draggableList.appendChild(listItem);
+    });
+  addListeners();
+}
+
+function dragStart() {
+  dragStartIndex = +this.closest("li").getAttribute("data-index");
+}
+
+function dragEnter() {
+  this.classList.add("over");
+}
+
+function dragLeave() {
+  this.classList.remove("over");
+}
+
+function dragOver(e) {
+  e.preventDefault(); // dragDrop is not executed otherwise
+}
+
+function dragDrop() {
+  const dragEndIndex = +this.getAttribute("data-index");
+  swapItems(dragStartIndex, dragEndIndex);
+  this.classList.remove("over");
+}
+
+function swapItems(fromIndex, toIndex) {
+  // Get Items
+  const itemOne = listItems[fromIndex].querySelector(".draggable");
+  const itemTwo = listItems[toIndex].querySelector(".draggable");
+  // Swap Items
+  listItems[fromIndex].appendChild(itemTwo);
+  listItems[toIndex].appendChild(itemOne);
+}
+
+function checkOrder() {
+  listItems.forEach((listItem, index) => {
+    const personName = listItem.querySelector(".draggable").innerText.trim();
+    if (personName !== richestPeople[index]) listItem.classList.add("wrong");
+    else {
+      listItem.classList.remove("wrong");
+      listItem.classList.add("right");
+    }
+  });
+}
+
+// Event Listeners
+function addListeners() {
+  const draggables = document.querySelectorAll(".draggable");
+  const dragListItems = document.querySelectorAll(".draggable-list li");
+  draggables.forEach((draggable) => {
+    draggable.addEventListener("dragstart", dragStart);
+  });
+  dragListItems.forEach((item) => {
+    item.addEventListener("dragover", dragOver);
+    item.addEventListener("drop", dragDrop);
+    item.addEventListener("dragenter", dragEnter);
+    item.addEventListener("dragleave", dragLeave);
+  });
+}
+
+check.addEventListener("click", checkOrder);
+
+// Init
+createList();
+</script>
 </head>
+  
 
 <body>
 
@@ -89,6 +296,12 @@
     </section><!-- End Portfolio Details Section -->
 
   </main><!-- End #main -->
+  <h1>Top 10 Benifits for our People</h1>
+    <p>You can Drag and drop the entries into their corresponding spots as per your preference</p>
+    <ul class="draggable-list" id="draggable-list"></ul>
+    <button id="check" class="check-btn">
+      Check Order <i class="fas fa-paper-plane"></i>
+    </button>
 
   <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
